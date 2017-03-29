@@ -1,3 +1,4 @@
+# *-* coding=utf-8 *-*
 try:
     import lzma
 except ImportError:
@@ -8,7 +9,7 @@ import os
 
 import jieba
 
-SUB_PROCESS = 4
+SUB_PROCESS = 1
 
 
 def tokenizer(filename):
@@ -32,7 +33,6 @@ def main(path, outfile):
     for wd in pool.imap_unordered(tokenizer, filenames):
         if word_dict is None:
             word_dict = wd
-            break
         else:
             for key in wd:
                 word_dict[key] += wd[key]
@@ -45,7 +45,9 @@ def main(path, outfile):
 
     with open(outfile, 'w') as of:
         for w, c in word_kv:
-            print >> of, w, c,
+            assert isinstance(w, unicode)
+            if not w.isspace():
+                print >> of, w.encode('utf-8'), c
 
 if __name__ == '__main__':
     main("./data", 'word_dict')
