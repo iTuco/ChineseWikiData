@@ -9,7 +9,7 @@ import os
 
 import jieba
 
-SUB_PROCESS = 1
+SUB_PROCESS = 4
 
 
 def tokenizer(filename):
