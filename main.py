@@ -84,6 +84,10 @@ def main(window_size=5):
             if event.batch_id % 100 == 0:
                 print "Pass %d, Batch %d, Cost %f, %s" % (
                     event.pass_id, event.batch_id, event.cost, event.metrics)
+            if event.batch_id % 1000 == 0:
+                with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
+                                                       event.batch_id), 'w') as f:
+                    parameters.to_tar(f)
 
         if isinstance(event, paddle.event.EndPass):
             print "Pass %d" % event.pass_id
@@ -94,7 +98,7 @@ def main(window_size=5):
         paddle.batch(
             paddle.reader.buffered(
                 reader_creator(window_size=window_size, word_dict=word_dict,
-                               path="./data"), 16*3*1000),
+                               path="./data"), 16 * 3 * 1000),
             16 * 3),
         num_passes=1,
         event_handler=event_handler)
