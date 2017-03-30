@@ -54,13 +54,13 @@ def main(window_size=5):
     embs = []
     for w in word_left + word_right:
         embs.append(
-            paddle.layer.embedding(input=w, size=32, param_attr=
+            paddle.layer.embedding(input=w, size=16, param_attr=
             paddle.attr.Param(name='emb', sparse_update=True)))
 
     contextemb = paddle.layer.concat(input=embs)
 
     hidden1 = paddle.layer.fc(input=contextemb,
-                              size=128,
+                              size=32,
                               act=paddle.activation.Sigmoid())
     predictword = paddle.layer.fc(input=hidden1,
                                   size=len(word_dict),

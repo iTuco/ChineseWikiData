@@ -1,8 +1,4 @@
 # *-* coding=utf-8 *-*
-try:
-    import lzma
-except ImportError:
-    from backports import lzma
 import collections
 import multiprocessing
 import os
