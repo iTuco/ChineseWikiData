@@ -92,9 +92,9 @@ def main(window_size=5):
 
     trainer.train(
         paddle.batch(
-            paddle.reader.firstn(
+            paddle.reader.buffered(
                 reader_creator(window_size=window_size, word_dict=word_dict,
-                               path="./data"), 10000),
+                               path="./data"), 16*3*1000),
             16 * 3),
         num_passes=1,
         event_handler=event_handler)
