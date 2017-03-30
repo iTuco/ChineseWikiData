@@ -4,6 +4,7 @@ import jieba
 import os
 import gzip
 
+CPU_NUM=4
 
 def reader(window_size, word_dict, filename):
     words = []
@@ -33,7 +34,7 @@ def reader_creator(window_size, word_dict, path):
 
 def main(window_size=5):
     assert window_size % 2 == 1
-    paddle.init(use_gpu=False, trainer_count=3)
+    paddle.init(use_gpu=False, trainer_count=CPU_NUM)
     word_dict = dict()
     with open('word_dict') as f:
         for word_id, line in enumerate(f):
@@ -98,8 +99,8 @@ def main(window_size=5):
         paddle.batch(
             paddle.reader.buffered(
                 reader_creator(window_size=window_size, word_dict=word_dict,
-                               path="./data"), 16 * 3 * 1000),
-            16 * 3),
+                               path="./data"), 16 * CPU_NUM * 1000),
+            16 * CPU_NUM),
         num_passes=1,
         event_handler=event_handler)
 
