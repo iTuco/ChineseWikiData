@@ -4,7 +4,8 @@ import jieba
 import os
 import gzip
 
-CPU_NUM=4
+CPU_NUM = 4
+
 
 def reader(window_size, word_dict, filename):
     words = []
@@ -87,7 +88,8 @@ def main(window_size=5):
                     event.pass_id, event.batch_id, event.cost, event.metrics)
             if event.batch_id % 1000 == 0:
                 with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
-                                                       event.batch_id), 'w') as f:
+                                                       event.batch_id),
+                               'w') as f:
                     parameters.to_tar(f)
 
         if isinstance(event, paddle.event.EndPass):
