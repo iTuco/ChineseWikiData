@@ -1,12 +1,14 @@
+# coding=utf-8
 import paddle.v2 as paddle
 import sys
 import jieba
 import os
 import gzip
+import regex as re
 
 CPU_NUM = 4
 EMB_SIZE = 32
-HIDDEN_SIZE = 64
+HIDDEN_SIZE = 128
 WORD_DICT_LIMIT = 200000
 
 
@@ -36,15 +38,24 @@ def reader_creator(window_size, word_dict, path):
     return __impl__
 
 
+pattern = re.compile(r'([\p{IsHan}\p{IsBopo}\p{IsHira}\p{IsKatakana}]+)',
+                     re.UNICODE)
+
+
 def main(window_size=5):
     assert window_size % 2 == 1
     paddle.init(use_gpu=False, trainer_count=CPU_NUM)
     word_dict = dict()
     with open('word_dict') as f:
-        for word_id, line in enumerate(f):
+        word_id = 0
+        for line in f:
             if word_id > WORD_DICT_LIMIT: break
             w, wc = line.split()
-            word_dict[w.decode('utf-8')] = word_id
+            w = w.decode('utf-8')
+            if pattern.match(w) is None:
+                continue
+            word_dict[w] = word_id
+            word_id += 1
 
     word_left = []
     word_right = []
