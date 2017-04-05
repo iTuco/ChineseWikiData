@@ -2,3 +2,6 @@
 *.pyc
 word_dict
 .*_env
+tmp
+*.tar.gz
+*.log
