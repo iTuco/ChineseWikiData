@@ -6,8 +6,8 @@ import gzip
 
 CPU_NUM = 4
 EMB_SIZE = 32
-HIDDEN_SIZE = 64
-WORD_DICT_LIMIT = 200000
+HIDDEN_SIZE = 128
+WORD_DICT_LIMIT = 20000
 
 
 def reader(window_size, word_dict, filename):
@@ -66,8 +66,7 @@ def main(window_size=5):
     contextemb = paddle.layer.concat(input=embs)
 
     hidden1 = paddle.layer.fc(input=contextemb,
-                              size=HIDDEN_SIZE,
-                              act=paddle.activation.Sigmoid())
+                              size=HIDDEN_SIZE)
 
     cost = paddle.layer.hsigmoid(input=hidden1,
                                  label=paddle.layer.data(
@@ -76,9 +75,8 @@ def main(window_size=5):
                                          len(word_dict))),
                                  num_classes=WORD_DICT_LIMIT)
     parameters = paddle.parameters.create(cost)
-    adam_optimizer = paddle.optimizer.AdaGrad(
-        learning_rate=3e-3,
-        regularization=paddle.optimizer.L2Regularization(8e-4))
+    adam_optimizer = paddle.optimizer.RMSProp(
+        learning_rate=1e-3)
     trainer = paddle.trainer.SGD(cost, parameters, adam_optimizer)
 
     counter = [0]
@@ -108,7 +106,7 @@ def main(window_size=5):
         paddle.batch(
             paddle.reader.buffered(
                 reader_creator(window_size=window_size, word_dict=word_dict,
-                               path="./data"), 16 * CPU_NUM * 1000),
+                               path="./data"), 16 * CPU_NUM * 4000),
             32 * CPU_NUM),
         num_passes=50,
         event_handler=event_handler)
