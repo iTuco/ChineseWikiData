@@ -4,9 +4,11 @@ import jieba
 import os
 import gzip
 
-EMB_SIZE=16
-HIDDEN_SIZE=32
-WORD_DICT_LIMIT=20000
+CPU_NUM = 4
+EMB_SIZE = 16
+HIDDEN_SIZE = 32
+WORD_DICT_LIMIT = 20000
+
 
 def reader(window_size, word_dict, filename):
     words = []
