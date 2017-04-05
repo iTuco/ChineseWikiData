@@ -4,8 +4,9 @@ import jieba
 import os
 import gzip
 
-CPU_NUM = 4
-
+EMB_SIZE=16
+HIDDEN_SIZE=32
+WORD_DICT_LIMIT=20000
 
 def reader(window_size, word_dict, filename):
     words = []
@@ -39,6 +40,7 @@ def main(window_size=5):
     word_dict = dict()
     with open('word_dict') as f:
         for word_id, line in enumerate(f):
+            if word_id > WORD_DICT_LIMIT: break
             w, wc = line.split()
             word_dict[w.decode('utf-8')] = word_id
 
@@ -56,13 +58,13 @@ def main(window_size=5):
     embs = []
     for w in word_left + word_right:
         embs.append(
-            paddle.layer.embedding(input=w, size=16, param_attr=
+            paddle.layer.embedding(input=w, size=EMB_SIZE, param_attr=
             paddle.attr.Param(name='emb', sparse_update=True)))
 
     contextemb = paddle.layer.concat(input=embs)
 
     hidden1 = paddle.layer.fc(input=contextemb,
-                              size=32,
+                              size=HIDDEN_SIZE,
                               act=paddle.activation.Sigmoid())
     predictword = paddle.layer.fc(input=hidden1,
                                   size=len(word_dict),
@@ -102,8 +104,8 @@ def main(window_size=5):
             paddle.reader.buffered(
                 reader_creator(window_size=window_size, word_dict=word_dict,
                                path="./data"), 16 * CPU_NUM * 1000),
-            16 * CPU_NUM),
-        num_passes=1,
+            32 * CPU_NUM),
+        num_passes=50,
         event_handler=event_handler)
 
 
