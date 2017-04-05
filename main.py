@@ -4,10 +4,10 @@ import jieba
 import os
 import gzip
 
-CPU_NUM = 1
-EMB_SIZE = 16
-HIDDEN_SIZE = 32
-WORD_DICT_LIMIT = 20000
+CPU_NUM = 3
+EMB_SIZE = 32
+HIDDEN_SIZE = 64
+WORD_DICT_LIMIT = 50000
 
 
 def reader(window_size, word_dict, filename):
@@ -68,12 +68,8 @@ def main(window_size=5):
     hidden1 = paddle.layer.fc(input=contextemb,
                               size=HIDDEN_SIZE,
                               act=paddle.activation.Sigmoid())
-    predictword = paddle.layer.fc(input=hidden1,
-                                  size=len(word_dict),
-                                  bias_attr=paddle.attr.Param(learning_rate=2),
-                                  act=paddle.activation.Softmax())
 
-    cost = paddle.layer.hsigmoid(input=predictword,
+    cost = paddle.layer.hsigmoid(input=hidden1,
                                  label=paddle.layer.data(
                                      name='mid_word',
                                      type=paddle.data_type.integer_value(
@@ -91,7 +87,7 @@ def main(window_size=5):
             if event.batch_id % 100 == 0:
                 print "Pass %d, Batch %d, Cost %f, %s" % (
                     event.pass_id, event.batch_id, event.cost, event.metrics)
-            if event.batch_id % 1000 == 0:
+            if event.batch_id % 10000 == 0:
                 with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
                                                        event.batch_id),
                                'w') as f:
