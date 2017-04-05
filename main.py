@@ -4,7 +4,7 @@ import jieba
 import os
 import gzip
 
-CPU_NUM = 4
+CPU_NUM = 1
 EMB_SIZE = 16
 HIDDEN_SIZE = 32
 WORD_DICT_LIMIT = 20000
@@ -73,11 +73,12 @@ def main(window_size=5):
                                   bias_attr=paddle.attr.Param(learning_rate=2),
                                   act=paddle.activation.Softmax())
 
-    cost = paddle.layer.classification_cost(input=predictword,
-                                            label=paddle.layer.data(
-                                                name='mid_word',
-                                                type=paddle.data_type.integer_value(
-                                                    len(word_dict))))
+    cost = paddle.layer.hsigmoid(input=predictword,
+                                 label=paddle.layer.data(
+                                     name='mid_word',
+                                     type=paddle.data_type.integer_value(
+                                         len(word_dict))),
+                                 num_classes=WORD_DICT_LIMIT)
     parameters = paddle.parameters.create(cost)
     adam_optimizer = paddle.optimizer.AdaGrad(
         learning_rate=3e-3,
