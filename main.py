@@ -81,12 +81,18 @@ def main(window_size=5):
         regularization=paddle.optimizer.L2Regularization(8e-4))
     trainer = paddle.trainer.SGD(cost, parameters, adam_optimizer)
 
+    counter = [0]
+    total_cost = [0.0]
+
     def event_handler(event):
         if isinstance(event, paddle.event.EndIteration):
+            total_cost[0] += event.cost
+            counter[0] += 1
+
             sys.stdout.write('.')
             if event.batch_id % 100 == 0:
-                print "Pass %d, Batch %d, Cost %f, %s" % (
-                    event.pass_id, event.batch_id, event.cost, event.metrics)
+                print "Pass %d, Batch %d, AvgCost %f" % (
+                    event.pass_id, event.batch_id, total_cost[0] / counter[0])
             if event.batch_id % 10000 == 0:
                 with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
                                                        event.batch_id),
