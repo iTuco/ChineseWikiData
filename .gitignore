@@ -5,3 +5,4 @@ word_dict
 tmp
 *.tar.gz
 *.log
+*.pkl

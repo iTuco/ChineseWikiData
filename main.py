@@ -5,11 +5,12 @@ import jieba
 import os
 import gzip
 import regex as re
+import cPickle
 
-CPU_NUM = 3
-EMB_SIZE = 16
+CPU_NUM = 4
+EMB_SIZE = 32
 HIDDEN_SIZE = 32
-WORD_DICT_LIMIT = 200000
+WORD_DICT_LIMIT = 4096
 
 
 def reader(window_size, word_dict, filename):
@@ -38,8 +39,7 @@ def reader_creator(window_size, word_dict, path):
     return __impl__
 
 
-pattern = re.compile(r'([\p{IsHan}\p{IsBopo}\p{IsHira}\p{IsKatakana}]+)',
-                     re.UNICODE)
+pattern = re.compile(r'([\p{IsHan}]+)', re.UNICODE)
 
 
 def main(window_size=5):
@@ -56,7 +56,8 @@ def main(window_size=5):
                 continue
             word_dict[w] = word_id
             word_id += 1
-
+    with open('word_dict.pkl', 'wb') as f:
+        cPickle.dump(word_dict, f, -1)
     word_left = []
     word_right = []
 
@@ -102,11 +103,11 @@ def main(window_size=5):
             if event.batch_id % 100 == 0:
                 print "Pass %d, Batch %d, AvgCost %f" % (
                     event.pass_id, event.batch_id, total_cost[0] / counter[0])
-            # if event.batch_id % 10000 == 0:
-            #     with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
-            #                                            event.batch_id),
-            #                    'w') as f:
-            #         parameters.to_tar(f)
+            if event.batch_id % 1000000 == 0:
+                with gzip.open("model_%d_%d.tar.gz" % (event.pass_id,
+                                                       event.batch_id),
+                               'w') as f:
+                    parameters.to_tar(f)
 
         if isinstance(event, paddle.event.EndPass):
             print "Pass %d" % event.pass_id
@@ -124,4 +125,4 @@ def main(window_size=5):
 
 
 if __name__ == '__main__':
-    main()
+    main(11)
