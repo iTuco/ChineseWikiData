@@ -61,7 +61,7 @@ def main(word, dict_filename, distance, limit, embedding_filename):
 
     print 'Similar words are:'
     for i in xrange(limit):
-        print '\t', scores[i][0], word_dict[scores[i][1]]
+        print '\t', scores[i][0], '\t', word_dict[scores[i][1]]
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
