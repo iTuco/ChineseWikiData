@@ -79,13 +79,14 @@ def main(window_size=5):
 
     hidden1 = paddle.layer.fc(input=contextemb,
                               size=HIDDEN_SIZE)
-
-    cost = paddle.layer.hsigmoid(input=hidden1,
-                                 label=paddle.layer.data(
-                                     name='mid_word',
-                                     type=paddle.data_type.integer_value(
-                                         len(word_dict))),
-                                 num_classes=WORD_DICT_LIMIT)
+    label = paddle.layer.data(name='mid_word',
+                              type=paddle.data_type.integer_value(
+                                  len(word_dict)))
+    cost = paddle.layer.nce(input=hidden1,
+                            label=label,
+                            num_classes=WORD_DICT_LIMIT,
+                            # act=paddle.activation.Sigmoid(),
+                            num_neg_samples=25)
     parameters = paddle.parameters.create(cost)
     adam_optimizer = paddle.optimizer.RMSProp(
         learning_rate=1e-3)
